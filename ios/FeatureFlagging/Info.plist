@@ -51,5 +51,16 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>FirebaseCore</key>
+	<dict>
+		<key>APIKey</key>
+		<string>your APIKey</string>
+		<key>GoogleAppID</key>
+		<string>your GoogleAppID</string>
+		<key>ProjectNumber</key>
+		<string>your ProjectNumber</string>
+	</dict>
+	<key>FirebaseAutomaticScreenReportingEnabled</key>
+	<false/>
 </dict>
 </plist>

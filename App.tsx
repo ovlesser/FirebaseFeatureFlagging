@@ -8,8 +8,10 @@
  * @format
  */
 
-import React, {type PropsWithChildren} from 'react';
+import React, {type PropsWithChildren, useEffect, useState} from 'react';
+import analytics from '@react-native-firebase/analytics';
 import {
+  Alert,
   SafeAreaView,
   ScrollView,
   StatusBar,
@@ -18,14 +20,7 @@ import {
   useColorScheme,
   View,
 } from 'react-native';
-
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+import {Colors, Header} from 'react-native/Libraries/NewAppScreen';
 
 const Section: React.FC<
   PropsWithChildren<{
@@ -57,12 +52,32 @@ const Section: React.FC<
   );
 };
 
-const App = () => {
+const App = (): JSX.Element => {
   const isDarkMode = useColorScheme() === 'dark';
 
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
+
+  const [featureFlags, setFeatureFlags] = useState<Record<string, unknown>[]>(
+    [],
+  );
+
+  const [email, setEmail] = useState('');
+  useEffect(() => {
+    const showAlert = () => {
+      Alert.prompt(
+        'Email Address',
+        'Please enter your email address:',
+        (inputEmail: string) => {
+          setEmail(inputEmail);
+          analytics().setUserProperty('email', inputEmail);
+        },
+      );
+    };
+
+    showAlert();
+  }, []);
 
   return (
     <SafeAreaView style={backgroundStyle}>
@@ -78,20 +93,9 @@ const App = () => {
           style={{
             backgroundColor: isDarkMode ? Colors.black : Colors.white,
           }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
+          <Section title={email}>
+            {JSON.stringify(featureFlags, undefined, 4)}
           </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
         </View>
       </ScrollView>
     </SafeAreaView>
