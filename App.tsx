@@ -10,6 +10,9 @@
 
 import React, {type PropsWithChildren, useEffect, useState} from 'react';
 import analytics from '@react-native-firebase/analytics';
+import remoteConfig, {
+  FirebaseRemoteConfigTypes,
+} from '@react-native-firebase/remote-config';
 import {
   Alert,
   SafeAreaView,
@@ -22,6 +25,7 @@ import {
 } from 'react-native';
 import {Colors, Header} from 'react-native/Libraries/NewAppScreen';
 
+const firebaseAnalytics = analytics();
 const Section: React.FC<
   PropsWithChildren<{
     title: string;
@@ -59,9 +63,8 @@ const App = (): JSX.Element => {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
 
-  const [featureFlags, setFeatureFlags] = useState<Record<string, unknown>[]>(
-    [],
-  );
+  const [featureFlags, setFeatureFlags] =
+    useState<FirebaseRemoteConfigTypes.ConfigValues>({});
 
   const [email, setEmail] = useState('');
   useEffect(() => {
@@ -69,9 +72,21 @@ const App = (): JSX.Element => {
       Alert.prompt(
         'Email Address',
         'Please enter your email address:',
-        (inputEmail: string) => {
+        async (inputEmail: string) => {
           setEmail(inputEmail);
-          analytics().setUserProperty('email', inputEmail);
+          // await firebaseAnalytics.setUserId(inputEmail);
+          await firebaseAnalytics.setUserProperty('email', inputEmail);
+          // await firebaseAnalytics.logEvent('login', {email: inputEmail});
+
+          setTimeout(async () => {
+            await remoteConfig().fetch(0);
+            await remoteConfig().activate();
+            // const flag = remoteConfig().getValue('Feature_Flag');
+            // console.log({flag});
+            const config = remoteConfig().getAll();
+            console.log(config);
+            setFeatureFlags(config);
+          }, 1000);
         },
       );
     };
